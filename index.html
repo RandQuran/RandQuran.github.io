@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Garamond&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.teal-white.min.css">
+  <title>Rand Quran</title>
+  <style>
+    body {
+      background-image: url(https://images.unsplash.com/photo-1525188772164-51d23f5aa0f8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=772&q=80);
+      background-size: cover;
+      font-family: 'Segoe UI', serif;
+      text-align: center;
+      height: 95vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-left: 10%;
+      margin-right: 10%;
+    }
+
+    h1 {
+      color: #168787;
+      font-size: 1.7rem;
+    }
+
+    .verse-container {
+      width: 80%;
+      margin: 0 auto;
+    }
+
+    #verseText {
+      font-size: 2.1rem;
+      color: #493f2d;
+      font-family: Garamond;
+    }
+
+    #audioControl {
+      display: none;
+    }
+
+    #playAudio {
+      background-color: #168787;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      font-size: 1.2rem;
+      margin-top: 20px;
+      box-shadow: 0 2px 2px rgba(0, 0, 0, 0.24), 0 0 2px rgba(0, 0, 0, 0.12);
+      font-family: Garamond;
+      font-weight: 900;
+    }
+
+    #playAudio:hover {
+      background-color: #ba9d6b;
+    }
+
+    footer {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.2rem;
+      color: rgb(255, 255, 255);
+      font-family: "Segoe UI";
+    }
+
+    @media only screen and (max-width: 1080px) {
+
+      .verse-container {
+        width: 80%;
+        margin: 0 auto;
+        padding: 1em;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 5px;
+        text-align: center;
+      }
+
+      #verseText {
+        font-size: 1.4rem;
+        color: #493f2d;
+        line-height: 1.5em;
+      }
+
+      footer {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 70%;
+        color: rgb(255, 255, 255);
+        font-family: "Segoe UI";
+
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+  <h1>Rand Quran</h1>
+  <div class="verse-container">
+    <p id="verseText"></p>
+  </div>
+  <p id="verseInfo"></p>
+  <audio id="audioControl" class="mdl-card__media" controls></audio>
+  <button id="playAudio" class="mdl-button mdl-js-button mdl-js-ripple-effect">
+    <i class="material-icons">play_arrow</i>
+  </button>
+  <button id="playAudio" class="mdl-button mdl-js-button mdl-js-ripple-effect" onClick="window.location.reload();">
+    <i class="material-icons">refresh</i>
+  </button>
+  <footer>&#169; 2023, Muhammad Siddiq</footer>
+</body>
+
+<script>
+  let randomVerse = Math.floor(Math.random() * 6236) + 1,
+    verseText = document.getElementById("verseText"),
+    audioControl = document.getElementById("audioControl"),
+    playAudio = document.getElementById("playAudio"),
+    text;
+
+  const displayVerse = (data) => {
+    text = data.data.text;
+    verseText.innerHTML = text.split(" ").length >= 14
+      ? `${text.split(" ").slice(0, 7).join(" ")}
+       <details><summary></summary>${text.split(" ").slice(7).join(" ")}</details>`
+      : text;
+    audioControl.src = data.data.audio;
+  };
+
+  const playPauseAudio = () => {
+    if (audioControl.paused) {
+      audioControl.play();
+      playAudio.innerHTML = '<i class="material-icons">pause</i>';
+      if (text.split(" ").length >= 14) {
+        setTimeout(() => {
+          audioControl.pause();
+          playAudio.innerHTML = '<i class="material-icons">play_arrow</i>';
+        }, 9000);
+      }
+    } else {
+      audioControl.pause();
+      playAudio.innerHTML = '<i class="material-icons">play_arrow</i>';
+    }
+  };
+
+  fetch("https://api.npoint.io/036deea3f0565a80db93/0")
+    .then(response => response.json())
+    .then(data => {
+      if (data.includes(randomVerse)) {
+        location.reload();
+      }
+    });
+
+  fetch(`https://api.alquran.cloud/v1/ayah/${randomVerse}/ar.alafasy`)
+    .then(response => response.json())
+    .then(displayVerse);
+
+  playAudio.addEventListener("click", playPauseAudio);
+
+
+</script>
+
+</html>
